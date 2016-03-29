@@ -1,0 +1,30 @@
+{
+  "name": "mountain",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pengxueshan/field.git"
+  },
+  "keywords": [
+    "field"
+  ],
+  "author": "mountain",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pengxueshan/field/issues"
+  },
+  "homepage": "https://github.com/pengxueshan/field#readme",
+  "dependencies": {
+    "express": "^4.13.4",
+    "express-handlebars": "^3.0.0",
+    "leanengine": "^0.4.0"
+  }
+}
