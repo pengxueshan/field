@@ -8,10 +8,13 @@ AV.initialize(APP_ID, APP_KEY, MASTER_KEY);
 // import {getPost} from './modules/post';
 var Post = require('./modules/post');
 
+// var async = require('async');
+
 // 加载express框架
 var express = require('express');
 // 加载handlebars模板引擎
 var exphbs  = require('express-handlebars');
+
 // 创建app
 var app = express();
 // leancloud云引擎中间件
@@ -29,6 +32,28 @@ app.get('/', (req,res) => {
     });
 });
 // 文章详情路由
-app.get('/post/*', Post.getPost);
+app.get('/post/*', function(req, res){
+    Post.getPost(req.url.split('/')[2], function(err, data){
+        if(err){
+            if(err === '404'){
+                res.render('404', {
+                    title: '404'
+                });
+            }else if(err === 'err'){
+                res.render('500', {
+                    title: 'server error'
+                });
+            }
+        }else{
+            res.render('post', {
+                title: data.title,
+                post: data.content,
+                year: data.year,
+                month: data.month,
+                day: data.day
+            });
+        }
+    });
+});
 
 app.listen(1024, () => {console.log('Express app listening on port 1024');});

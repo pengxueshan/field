@@ -1,3 +1,12 @@
-<h1>{{> page/title}}</h1>
+<div class="blog-wrap">
+    {{> page/header}}
 
-{{> page/nav}}
+    <div class="container-wrap">
+        <div class="layout-column1">
+            {{> page/postslist}}
+        </div>
+        <div class="layout-column2">
+            {{> page/intro}}
+        </div>
+    </div>
+</div>
