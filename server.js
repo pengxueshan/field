@@ -8,7 +8,7 @@ AV.initialize(APP_ID, APP_KEY, MASTER_KEY);
 // import {getPost} from './modules/post';
 var Post = require('./modules/post');
 
-// var async = require('async');
+var Util = require('./modules/util');
 
 // 加载express框架
 var express = require('express');
@@ -50,7 +50,12 @@ app.get('/post/*', function(req, res){
                 post: data.content,
                 year: data.year,
                 month: data.month,
-                day: data.day
+                day: data.day,
+                helpers: {
+                    transMonth: function(m){
+                        return Util.getMonth(m);
+                    }
+                }
             });
         }
     });
