@@ -28,7 +28,13 @@ app.use(express.static(__dirname + '/public'));
 // 首页路由
 app.get('/', (req,res) => {
     res.render('home', {
-        title: 'Home'
+        title: 'Home',
+        list: Post.getList(),
+        helpers: {
+            transMonth: function(m){
+                return Util.getMonth(m);
+            }
+        }
     });
 });
 // 文章详情路由
