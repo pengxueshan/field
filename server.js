@@ -30,4 +30,4 @@ app.get('/', Post.renderIndex);
 // 文章详情路由
 app.get('/post/*', Post.renderPost);
 
-app.listen(1024, () => {console.log('Express app listening on port 1024');});
+app.listen(3000, function(){console.log('Express app listening on port 1024');});
