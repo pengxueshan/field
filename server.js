@@ -26,45 +26,8 @@ app.set('view engine', 'handlebars');
 app.use(express.static(__dirname + '/public'));
 
 // 首页路由
-app.get('/', (req,res) => {
-    res.render('home', {
-        title: 'Home',
-        list: Post.getList(),
-        helpers: {
-            transMonth: function(m){
-                return Util.getMonth(m);
-            }
-        }
-    });
-});
+app.get('/', Post.renderIndex);
 // 文章详情路由
-app.get('/post/*', function(req, res){
-    Post.getPost(req.url.split('/')[2], function(err, data){
-        if(err){
-            if(err === '404'){
-                res.render('404', {
-                    title: '404'
-                });
-            }else if(err === 'err'){
-                res.render('500', {
-                    title: 'server error'
-                });
-            }
-        }else{
-            res.render('post', {
-                title: data.title,
-                post: data.content,
-                year: data.year,
-                month: data.month,
-                day: data.day,
-                helpers: {
-                    transMonth: function(m){
-                        return Util.getMonth(m);
-                    }
-                }
-            });
-        }
-    });
-});
+app.get('/post/*', Post.renderPost);
 
 app.listen(1024, () => {console.log('Express app listening on port 1024');});

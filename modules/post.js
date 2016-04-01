@@ -1,5 +1,6 @@
 var fs = require('fs');
 var marked = require('marked');
+var Util = require('../modules/util');
 marked.setOptions({
     highlight: function (code) {
         return require('highlight.js').highlightAuto(code).value;
@@ -17,53 +18,110 @@ var POSTS = {
     posts: []
 };
 
-function getList(){
-    if(POSTS.length > 0){
-        return POSTS.posts;
-    }
-    fs.readdir('./posts/', function(err, files){
-        var len = files.length;
-        if(len === 0) return POSTS;
-        files.forEach(function(file){
-            fs.stat('./posts/'+file, function(err, stats){
-                if(err) throw err;
-                if(stats.isFile()){
-                    readPost(file.replace(/.md$/, ''));
-                }
+function renderIndex(req, res){
+    if(POSTS.length < 1){
+        fs.readdir('./posts/', function(err, files){
+            var len = files.length;
+            if(len === 0) return POSTS;
+            files.forEach(function(file){
+                fs.stat('./posts/'+file, function(err, stats){
+                    if(err) throw err;
+                    if(stats.isFile()){
+                        fs.readFile('./posts/'+file, 'utf8', function(err, data){
+                            if(err){
+                                _render500(req, res);
+                            }else{
+                                var postData = _compilePostData(file.replace(/.md/, ''), data);
+                                POSTS.posts.push(postData);
+                                POSTS.length = POSTS.length + 1;
+                                if(--len === 0){
+                                    _renderHome(req, res);
+                                }
+                            }
+                        });
+                    }
+                });
             });
         });
-    });
+    }else{
+        _renderHome(req, res);
+    }
 }
 
-function readPost(filename, cb){
-    var postPath = './posts/'+filename+'.md';
+function renderPost(req, res){
+    var filename = req.url.split('/')[2];
+    var postPath = './posts/' + filename + '.md';
     if(POSTS.length > 0){
         for(var i = 0; i < POSTS.length; i++){
             if(POSTS.posts[i].name === filename){
-                return POSTS.posts[i];
+                _renderPost(req, res, POSTS.posts[i]);
+                return;
+            }else{
+                _readFile(req, res, postPath);
             }
         }
+    }else{
+        _readFile(req, res, postPath);
     }
-    console.log(filename);
+}
+
+function _renderHome(req, res){
+    res.render('home', {
+        title: 'Home',
+        list: POSTS.posts,
+        helpers: {
+            transMonth: function(m){
+                return Util.getMonth(m);
+            }
+        }
+    });
+}
+
+function _render500(req, res){
+    res.render('500', {
+        title: 'server error'
+    });
+}
+
+function _render404(req, res){
+    res.render('404', {
+        title: '404'
+    });
+}
+
+function _renderPost(req, res, data){
+    res.render('post', {
+        title: data.title,
+        post: data.content,
+        year: data.year,
+        month: data.month,
+        day: data.day,
+        helpers: {
+            transMonth: function(m){
+                return Util.getMonth(m);
+            }
+        }
+    });
+}
+
+function _readFile(req, res, postPath){
     fs.exists(postPath, function(ex){
         if(!ex){
-            if(cb) cb('404');
-            return;
+            _render404(req, res);
         }else{
             fs.readFile(postPath, 'utf8', function(err, data){
                 if(err){
-                    if(cb) cb('err');
+                    _render500(req, res);
                 }else{
                     var postData = _compilePostData(filename, data);
-                    // POSTS[filename] = postData;
                     POSTS.posts.push(postData);
                     POSTS.length = POSTS.length + 1;
-                    if(cb) cb(null, postData);
+                    _renderPost(req, res, postData);
                 }
             });
         }
     });
-};
+}
 
 function _compilePostData(filename, data){
     var info = filename.split('_');
@@ -78,6 +136,6 @@ function _compilePostData(filename, data){
 }
 
 module.exports = {
-    getPost: readPost,
-    getList: getList
+    renderPost: renderPost,
+    renderIndex: renderIndex
 };
